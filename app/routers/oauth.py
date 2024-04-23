@@ -54,13 +54,21 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     # Authenticate the user with the provided credentials
     user = authenticate_user(form_data.username, form_data.password)
     
-    # If authentication fails, return an HTTP 401 Unauthorized response
+    # If authentication fails, differentiate between incorrect username and incorrect password
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        # Check if the username exists in the database
+        if not authenticate_user(form_data.username):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect username",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     
     # Specify the duration the token will be valid
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
