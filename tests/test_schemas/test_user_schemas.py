@@ -86,3 +86,16 @@ def test_user_base_username_invalid(username, user_base_data):
     user_base_data["username"] = username
     with pytest.raises(ValidationError):
         UserBase(**user_base_data)
+
+def test_user_base_full_name_validation():
+    # Invalid full name with less than two words
+    invalid_user_data = {
+        "username": "john_doe_123",
+        "email": "john.doe@example.com",
+        "full_name": "John",
+        "bio": "I am a software engineer with over 5 years of experience.",
+        "profile_picture_url": "https://example.com/profile_pictures/john_doe.jpg"
+    }
+    # Creating UserBase instance with invalid full name should raise a ValidationError
+    with pytest.raises(ValidationError):
+        UserBase(**invalid_user_data)
